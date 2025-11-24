@@ -1,0 +1,70 @@
+Crie a base de exemplo (ElectroShop)
+
+-- Script: electroshop_sample.sql
+CREATE DATABASE IF NOT EXISTS electroshop;
+USE electroshop;
+
+-- produtos
+CREATE TABLE produtos (
+  idprodutos INT NOT NULL AUTO_INCREMENT,
+  nome VARCHAR(150) NOT NULL,
+  categoria VARCHAR(80) NOT NULL,
+  preco DECIMAL(10,2) NOT NULL,
+  estoque INT NOT NULL DEFAULT 0,
+  PRIMARY KEY (idprodutos)
+) ENGINE=InnoDB;
+
+-- clientes
+CREATE TABLE clientes (
+  idclientes INT NOT NULL AUTO_INCREMENT,
+  nome VARCHAR(150) NOT NULL,
+  email VARCHAR(150) UNIQUE,
+  telefone VARCHAR(30),
+  PRIMARY KEY (idclientes)
+) ENGINE=InnoDB;
+
+-- vendas
+CREATE TABLE vendas (
+  idvendas INT NOT NULL AUTO_INCREMENT,
+  cliente_id INT NOT NULL,
+  data_venda DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (idvendas),
+  CONSTRAINT fk_vendas_clientes FOREIGN KEY (cliente_id)
+    REFERENCES clientes(idclientes) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- itens_venda (associação vendas ↔ produtos)
+CREATE TABLE itens_venda (
+  iditens_venda INT NOT NULL AUTO_INCREMENT,
+  venda_id INT NOT NULL,
+  produto_id INT NOT NULL,
+  quantidade INT NOT NULL,
+  preco_unitario DECIMAL(10,2) NOT NULL,
+  PRIMARY KEY (iditens_venda),
+  CONSTRAINT fk_itens_venda_vendas FOREIGN KEY (venda_id)
+    REFERENCES vendas(idvendas) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_itens_venda_produtos FOREIGN KEY (produto_id)
+    REFERENCES produtos(idprodutos) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- dados de exemplo
+INSERT INTO produtos (nome,categoria,preco,estoque) VALUES
+('Notebook Dell XPS 13','Informática',7500.00,12),
+('Mouse Gamer Razer','Periféricos',350.00,50),
+('Monitor LG 27','Monitores',1400.00,20),
+('Teclado Mecânico Redragon','Periféricos',290.00,40),
+('HD Externo 1TB','Armazenamento',320.00,25);
+
+INSERT INTO clientes (nome,email,telefone) VALUES
+('Carlos Silva','carlos@example.com','119998877'),
+('Mariana Costa','mariana@example.com','119123412'),
+('Pedro Lima','pedro@example.com','119554433');
+
+INSERT INTO vendas (cliente_id) VALUES (1),(2),(1);
+
+INSERT INTO itens_venda (venda_id,produto_id,quantidade,preco_unitario) VALUES
+(1,1,1,7500.00),
+(1,2,2,350.00),
+(2,3,1,1400.00),
+(3,4,1,290.00),
+(3,5,1,320.00);
